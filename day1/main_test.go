@@ -2,6 +2,90 @@ package main
 
 import "testing"
 
+func Test_findFirstDigitsPt2FromLeft(t *testing.T) {
+	testCases := []struct{
+		s string
+		expected string
+	} {
+		{
+			s: "two1nine",
+			expected: "2",
+		},
+		{
+			s: "eightwothree",
+			expected: "8",
+		},
+		{
+			s: "abcone2threexyz",
+			expected: "1",
+		},
+		{
+			s: "xtwone3four",
+			expected: "2",
+		},
+		{
+			s: "4nineeightseven2",
+			expected: "4",
+		},
+		{
+			s: "zoneight234",
+			expected: "1",
+		},
+		{
+			s: "7pqrstsixteen",
+			expected: "7",
+		},
+	}
+	for _, tc := range testCases {
+		result := findFirstDigitsPt2FromLeft(tc.s)
+		if (result != tc.expected) {
+			t.Errorf("'%s' failed, expected: '%s', actual result: '%s'.", tc.s, tc.expected, result)
+		}
+	}
+}
+
+func Test_findFirstDigitsPt2FromRight(t *testing.T) {
+	testCases := []struct{
+		s string
+		expected string
+	} {
+		{
+			s: "two1nine",
+			expected: "9",
+		},
+		{
+			s: "eightwothree",
+			expected: "3",
+		},
+		{
+			s: "abcone2threexyz",
+			expected: "3",
+		},
+		{
+			s: "xtwone3four",
+			expected: "4",
+		},
+		{
+			s: "4nineeightseven2",
+			expected: "2",
+		},
+		{
+			s: "zoneight234",
+			expected: "4",
+		},
+		{
+			s: "7pqrstsixteen",
+			expected: "6",
+		},
+	}
+	for _, tc := range testCases {
+		result := findFirstDigitsPt2FromRight(tc.s)
+		if (result != tc.expected) {
+			t.Errorf("'%s' failed, expected: '%s', actual result: '%s'.", tc.s, tc.expected, result)
+		}
+	}
+}
+
 func Test_findFirstDigit(t *testing.T) {
 	testCases := []struct{
 		s string
