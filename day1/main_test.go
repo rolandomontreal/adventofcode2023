@@ -35,6 +35,46 @@ func Test_findFirstDigitsPt2FromLeft(t *testing.T) {
 			s: "7pqrstsixteen",
 			expected: "7",
 		},
+		{
+			s: "kjrqmzv9mmtxhgvsevenhvq7",
+			expected: "9",
+		},
+		{
+			s: "four2tszbgmxpbvninebxns6nineqbqzgjpmpqr",
+			expected: "4",
+		},
+		{
+			s: "rkzlnmzgnk91zckqprrptnthreefourtwo",
+			expected: "9",
+		},
+		{
+			s: "fouronevzkbnzm6seven47",
+			expected: "4",
+		},
+		{
+			s: "zphgdcznqsm2",
+			expected: "2",
+		},
+		{
+			s: "4gjnmxtrbflgp71",
+			expected: "4",
+		},
+		{
+			s: "4sixonetwobzvll",
+			expected: "4",
+		},
+		{
+			s: "eighthree",
+			expected: "8",
+		},
+		{
+			s: "sevenine",
+			expected: "7",
+		},
+		{
+			s: "oneight",
+			expected: "1",
+		},
 	}
 	for _, tc := range testCases {
 		result := findFirstDigitsPt2FromLeft(tc.s)
@@ -76,6 +116,46 @@ func Test_findFirstDigitsPt2FromRight(t *testing.T) {
 		{
 			s: "7pqrstsixteen",
 			expected: "6",
+		},
+		{
+			s: "kjrqmzv9mmtxhgvsevenhvq7",
+			expected: "7",
+		},
+		{
+			s: "four2tszbgmxpbvninebxns6nineqbqzgjpmpqr",
+			expected: "9",
+		},
+		{
+			s: "rkzlnmzgnk91zckqprrptnthreefourtwo",
+			expected: "2",
+		},
+		{
+			s: "fouronevzkbnzm6seven47",
+			expected: "7",
+		},
+		{
+			s: "zphgdcznqsm2",
+			expected: "2",
+		},
+		{
+			s: "4gjnmxtrbflgp71",
+			expected: "1",
+		},
+		{
+			s: "4sixonetwobzvll",
+			expected: "2",
+		},
+		{
+			s: "eighthree",
+			expected: "3",
+		},
+		{
+			s: "sevenine",
+			expected: "9",
+		},
+		{
+			s: "oneight",
+			expected: "8",
 		},
 	}
 	for _, tc := range testCases {

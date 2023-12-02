@@ -52,7 +52,7 @@ var possibleValues = []value{
 }
 
 func main() {
-	filepath := "./testdata2.txt"
+	filepath := "./actualdata.txt"
 	bs, err := os.ReadFile(filepath)
 
 	if err != nil {
@@ -67,6 +67,7 @@ func main() {
 		fmt.Println(row)
 		v1 := findFirstDigitsPt2FromLeft(row)
 		v2 := findFirstDigitsPt2FromRight(row)
+		fmt.Println(v1 + v2)
 
 		n, err := strconv.Atoi(v1 + v2)
 		if err != nil {
@@ -76,26 +77,28 @@ func main() {
 		sum += n
 	}
 
-
 	fmt.Println("sum: ", sum)
 }
 
 // For part 2
 func findFirstDigitsPt2FromLeft(s string) string {
-	firstIndex := 1000
+	firstIndex := len(s) + 1
 
 	var foundItem value
 
 	for _, pv := range possibleValues {
 		i := strings.Index(s, pv.numString)
-		k := strings.Index(s, pv.stringRep)
-		if ((i >= 0 && i < firstIndex) || (k >= 0 && k < firstIndex)) {
+		if (i >= 0 && i < firstIndex) {
+			fmt.Printf("Found new furthest to the left for '%s' on index %d\n", pv.numString, i)
 			foundItem = pv
-			if ((i < k && i >= 0) || k < 0) {
-				firstIndex = i
-			} else {
-				firstIndex = k
-			} 
+			firstIndex = i
+		}
+
+		k := strings.Index(s, pv.stringRep)
+		if (k >= 0 && k < firstIndex) {
+			fmt.Printf("Found new furthest to the left for '%s' on index %d\n", pv.stringRep, k)
+			foundItem = pv
+			firstIndex = k
 		}
 	}
 
@@ -104,20 +107,23 @@ func findFirstDigitsPt2FromLeft(s string) string {
 
 // For part 2
 func findFirstDigitsPt2FromRight(s string) string {
-	firstIndex := 0
+	firstIndex := -1
 
 	var foundItem value
 
 	for _, pv := range possibleValues {
 		i := strings.LastIndex(s, pv.numString)
-		k := strings.LastIndex(s, pv.stringRep)
-		if ((i < len(s) && i > firstIndex) || (k < len(s) && k > firstIndex)) {
+		if (i > firstIndex) {
+			fmt.Printf("Found new furthest to the right for '%s' on index %d\n", pv.numString, i)
 			foundItem = pv
-			if (i > k) {
-				firstIndex = i
-			} else  {
-				firstIndex = k
-			}
+			firstIndex = i
+		}
+
+		k := strings.LastIndex(s, pv.stringRep)
+		if (k > firstIndex) {
+			fmt.Printf("Found new furthest to the right for '%s' on index %d\n", pv.stringRep, k)
+			foundItem = pv
+			firstIndex = k
 		}
 	}
 
