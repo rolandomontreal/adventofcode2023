@@ -3,14 +3,13 @@ package main
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 )
 
-// 564267 - too high
-
 func main() {
-	filepath := "./testdata.txt"
+	filepath := "./actualdata.txt"
 	bs, err := os.ReadFile(filepath)
 
 	if err != nil {
@@ -19,87 +18,80 @@ func main() {
 	}
 
 	data := string(bs)
-
 	// fmt.Println(data)
-	nums := pickNumsWithAdjacentSymbols(data)
-	fmt.Println(nums)
-	sum := 0
-	for _, num := range nums {
-		sum += num
+	rows := strings.Split(data, "\n")
+	fmt.Println(rows)
+	columns := len(rows[0])
+	fmt.Println("columns: ", columns)
+
+	var numberRegex = regexp.MustCompile(`\d+`)
+
+	tests := "...123123%\n"
+	otherSymbolRegex := regexp.MustCompile(`[^0-9.\n]`)
+	if (otherSymbolRegex.MatchString(tests)) {
+		fmt.Println("MATCH")
+	} else {
+		fmt.Println("NO MATCH")
 	}
-	fmt.Println(sum)
-}
 
-func pickNumsWithAdjacentSymbols(s string) []int {
-	output := []int{}
-
-	rows := strings.Split(s, "\n")
+	sum := 0
 	for y, row := range rows {
-		rownums := []int{}
-		startOfNum := -1
-		// fmt.Println(y)
-		fmt.Println(row)
-
-		for x := 0; x < len(row); x++ {
-			c := row[x:x+1]
-			// fmt.Println(c)
-			n, err :=strconv.Atoi(c)
-			// Found a number
-			fmt.Println("num: ", n)
-			if err == nil && startOfNum == -1  {
-				startOfNum = x
+		fmt.Println("Row: ", row)
+		bs := []byte(row)
+		numsIndices := numberRegex.FindAllIndex(bs, -1)
+		// fmt.Println("numsIndices: ", numsIndices)
+		for _, match := range numsIndices {
+			// fmt.Println(match)
+			startX := max(0, match[0] - 1)
+			// fmt.Println("Startx: ", startX)
+			endX := min(columns, match[1] + 1)
+			// fmt.Println("endX: ", endX)
+			var upperrow string
+			if (y > 0) {
+				upperrow = rows[y-1][startX:endX]
+				// fmt.Println("upperrow: ", upperrow)
 			}
-			// Found end of number by character
-			endOfNumber := err != nil && startOfNum != -1
-			// Found end of number by line end
-			endOfLineAndNumber := x == len(row) - 1 && err == nil
-			if endOfNumber || endOfLineAndNumber {
-				var endIndex int
-				if endOfNumber {
-					endIndex = x
-				} else {
-					endIndex = x + 1
-				}
-				fmt.Println("error parsing num: ", err)
-				// Run logic for checking adjacent coordinates
-				fmt.Printf("startOfNum: %d, end: %d\n\n", startOfNum, endIndex)
-				validNumber := isValidNumber(y, len(rows), startOfNum, endIndex, len(row), rows)
-				n, err := strconv.Atoi(row[startOfNum:endIndex])
-				fmt.Println("Number found: ", n)
+			rowsection := row[startX:endX]
+			// fmt.Println("rowSection: ", rowsection)
+			var lowerrow string
+			if (y < len(rows) - 1) {
+				lowerrow = rows[y+1][startX:endX]
+				// fmt.Println("lowerrow: ", lowerrow)
+			}
+			section := upperrow + "\n" + rowsection + "\n" + lowerrow
+			fmt.Println("\n" + section)
+			otherSymbolRegex := regexp.MustCompile(`[^0-9.\n]`)
+			if (otherSymbolRegex.MatchString(section)) {
+				fmt.Println("VALID NUMBER")
+				nstr := row[match[0]:match[1]]
+				fmt.Println(nstr)
+				n, err := strconv.Atoi(nstr)
 				if err != nil {
-					fmt.Println("Error parsing the number??", err)
+					fmt.Println("Error parsing shit: ", err)
 					os.Exit(1)
 				}
-				if validNumber {
-					output = append(output, n)
-					rownums = append(rownums, n)
-				}
-				// Reset start of num
-				startOfNum = -1
-			}
-		}
-		fmt.Println(rownums)
-	}
-
-	return output
-}
-
-func isValidNumber(y int, totalRows int, startX int, endX int, rowLength int, rows []string) bool {
-	foundSymbol := false
-	for i := y - 1; i <= y + 1 && !foundSymbol; i++ {
-		if (i >= 0 && i < totalRows) {
-			for k := startX - 1; k <= endX + 1 && !foundSymbol; k++ {
-				if (k >= 0 && k < rowLength) {
-					c := rows[i][k:k+1]
-					fmt.Printf("Checking %s  ", c)
-					numericOrDot := strings.ContainsAny(c, "1234567890.")
-					if !numericOrDot {
-						foundSymbol = !numericOrDot
-					}
-				}
+				sum += n
+			} else {
+				fmt.Println("INVALID NUMBER")
 			}
 		}
 	}
-	return foundSymbol
+
+	fmt.Println("sum: ", sum)
 }
 
+func max(a int, b int) int {
+	if (a > b) {
+		return a
+	} else {
+		return b
+	}
+}
+
+func min(a int, b int) int {
+	if (a < b) {
+		return a
+	} else {
+		return b
+	}
+}
