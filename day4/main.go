@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -16,7 +15,7 @@ type lotteryticket struct {
 }
 
 func main() {
-	filepath := "./testdata.txt"
+	filepath := "./actualdata.txt"
 	bs, err := os.ReadFile(filepath)
 	if err != nil {
 		fmt.Println("Could not read file...", err)
@@ -24,25 +23,43 @@ func main() {
 	}
 
 	data := string(bs)
-	rows := strings.Split(data, "\n")
+	tickets := parseTickets(data)
 
-	// tickets := parseTickets(data)
-	// fmt.Println(tickets)
-
-	sum := 0
-	for _, row := range rows {
-		fmt.Println(row)
-		score := getScoreRow(row)
-		fmt.Println("Score calculated: ", score, "\n")
-		sum += score
+	for i, ticket := range tickets {
+		for k := 0; k < ticket.copies + 1; k++ {
+			extraTickets := calculateExtraTickets(ticket)
+			for j := i + 1; j < i + 1 + extraTickets && j < len(tickets); j++ {
+				tickets[j].copies += 1
+			}
+		}
 	}
 
-	fmt.Println("Solution: ", sum)
+	sum := 0
+	for _, ticket := range tickets {
+		sum += 1 + ticket.copies
+	}
+	fmt.Println(sum)
+}
+
+func calculateExtraTickets(t lotteryticket) int {
+	winningNumsSet := map[int]bool {}
+	for _, winningNum := range t.winningNums {
+		winningNumsSet[winningNum] = true
+	}
+
+	occurrences := 0
+	for _, givenNum := range t.givenNums {
+		if winningNumsSet[givenNum] {
+			occurrences++
+		}
+	}
+
+	return occurrences
 }
 
 func parseTickets(data string) []lotteryticket {
 	tickets := []lotteryticket{}
-	rows := strings.Split(data, "\n")[0:1]
+	rows := strings.Split(data, "\n")
 	for i, row := range rows {
 		nums := strings.Split(strings.Split(row, ":")[1], "|")
 		winningNumsStr, givenNumsStr := nums[0], nums[1]
@@ -61,7 +78,6 @@ func parseTickets(data string) []lotteryticket {
 
 func parseNums(numarr string) []int {
 	nstr := strings.Fields(numarr)
-	fmt.Println(nstr)
 	output := []int{}
 	for _, ns := range nstr {
 		n, err := strconv.Atoi(ns)
@@ -74,41 +90,42 @@ func parseNums(numarr string) []int {
 	return output
 }
 
-func getScoreRow(row string) int {
-	nums := strings.Split(strings.Split(row, ":")[1], "|")
-	winningNumsStr, givenNumsStr := nums[0], nums[1]
-	winningsNums := strings.Split(strings.TrimSpace(winningNumsStr), " ")
+// Part 1
+// func getScoreRow(row string) int {
+// 	nums := strings.Split(strings.Split(row, ":")[1], "|")
+// 	winningNumsStr, givenNumsStr := nums[0], nums[1]
+// 	winningsNums := strings.Split(strings.TrimSpace(winningNumsStr), " ")
 
-	winningNumsSet := map[int]bool {}
-	for _, winningNum := range winningsNums {
-		if len(winningNum) > 0 {
-			wn, err := strconv.Atoi(winningNum)
-			if err != nil {
-				fmt.Println("Could not parse wn: ", wn, err)
-				os.Exit(1)
-			}
-			winningNumsSet[wn] = true
-		}
-	}
-	fmt.Println("Numsset: ", winningNumsSet)
+// 	winningNumsSet := map[int]bool {}
+// 	for _, winningNum := range winningsNums {
+// 		if len(winningNum) > 0 {
+// 			wn, err := strconv.Atoi(winningNum)
+// 			if err != nil {
+// 				fmt.Println("Could not parse wn: ", wn, err)
+// 				os.Exit(1)
+// 			}
+// 			winningNumsSet[wn] = true
+// 		}
+// 	}
+// 	fmt.Println("Numsset: ", winningNumsSet)
 
-	givenNums := strings.Split(strings.TrimSpace(givenNumsStr), " ")
-	occurrences := 0
-	for _, givenNum := range givenNums {
-		if len(givenNum) > 0 {
-			gn, err := strconv.Atoi(givenNum)
-			if err != nil {
-				fmt.Println("Could not parse wn: ", gn, err)
-				os.Exit(1)
-			}
-			if winningNumsSet[gn] {
-				fmt.Printf("Match for %d\n", gn)
-				occurrences++
-			}
-		}
-	}
+// 	givenNums := strings.Split(strings.TrimSpace(givenNumsStr), " ")
+// 	occurrences := 0
+// 	for _, givenNum := range givenNums {
+// 		if len(givenNum) > 0 {
+// 			gn, err := strconv.Atoi(givenNum)
+// 			if err != nil {
+// 				fmt.Println("Could not parse wn: ", gn, err)
+// 				os.Exit(1)
+// 			}
+// 			if winningNumsSet[gn] {
+// 				fmt.Printf("Match for %d\n", gn)
+// 				occurrences++
+// 			}
+// 		}
+// 	}
 
-	fmt.Println("Occurences: ", occurrences)
+// 	fmt.Println("Occurences: ", occurrences)
 
-	return int(math.Pow(2, float64(occurrences - 1)))
-}
+// 	return int(math.Pow(2, float64(occurrences - 1)))
+// }
