@@ -21,32 +21,68 @@ func main() {
 		os.Exit(1)
 	}
 
-	races := parseRaces(bs)
-
-	nrwaystowin := []int{}
-	for _, race := range races {
-		nrways := 0
-		for i := 0; i <= race.totalms; i++ {
-			velocity := i
-			timetravelling := race.totalms - i
-			distance := velocity * timetravelling
-			if distance > race.record {
-				nrways++
-			}
+	// races := parseRaces(bs)
+	race := parseRaces2(bs)
+	fmt.Println(race)
+	
+	nrways := 0
+	for i := 0; i <= race.totalms; i++ {
+		velocity := i
+		timetravelling := race.totalms - i
+		distance := velocity * timetravelling
+		if distance > race.record {
+			nrways++
 		}
-		nrwaystowin = append(nrwaystowin, nrways)
 	}
+	fmt.Println(nrways)
+	
 
-	fmt.Println(races)
-	fmt.Println(nrwaystowin)
+	// Part 1
+	// nrwaystowin := []int{}
+	// for _, race := range races {
+	// 	nrways := 0
+	// 	for i := 0; i <= race.totalms; i++ {
+	// 		velocity := i
+	// 		timetravelling := race.totalms - i
+	// 		distance := velocity * timetravelling
+	// 		if distance > race.record {
+	// 			nrways++
+	// 		}
+	// 	}
+	// 	nrwaystowin = append(nrwaystowin, nrways)
+	// }
 
-	product := 1
-	for _, nrways := range nrwaystowin {
-		product *= nrways
-	}
-	fmt.Println(product)
+	// fmt.Println(races)
+	// fmt.Println(nrwaystowin)
+
+	// product := 1
+	// for _, nrways := range nrwaystowin {
+	// 	product *= nrways
+	// }
+	// fmt.Println(product)
 }
 
+
+// Part 2
+func parseRaces2(bs []byte) race {
+	s := string(bs)
+	rows := strings.Split(s, "\n")	
+	ts := strings.Join(strings.Fields(strings.Split(rows[0], ":")[1]), "")
+	t, _ := strconv.Atoi(ts)
+	ds := strings.Join(strings.Fields(strings.Split(rows[1], ":")[1]), "")
+	d, _ := strconv.Atoi(ds)
+	fmt.Println(ts)
+	fmt.Println(ds)
+
+	r := race{
+		totalms: t,
+		record: d,
+	}
+
+	return r
+}
+
+// Part 1
 func parseRaces(bs []byte) []race {
 	s := string(bs)
 	rows := strings.Split(s, "\n")	
