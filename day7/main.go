@@ -3,13 +3,14 @@ package main
 import (
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 )
 
 type handtype struct {
 	name string
-	rank int
+	value int
 }
 
 type hand struct {
@@ -21,31 +22,31 @@ type hand struct {
 var handTypes = []handtype{
 	{
 		name: "fiveofakind",
-		rank: 7,
+		value: 7,
 	},
 	{
 		name: "fourofakind",
-		rank: 6,
+		value: 6,
 	},
 	{
 		name: "fullhouse",
-		rank: 5,
+		value: 5,
 	},
 	{
 		name: "threeofakind",
-		rank: 4,
+		value: 4,
 	},
 	{
 		name: "twopairs",
-		rank: 3,
+		value: 3,
 	},
 	{
 		name: "onepair",
-		rank: 2,
+		value: 2,
 	},
 	{
 		name: "highcard",
-		rank: 1,
+		value: 1,
 	},
 }
 
@@ -57,11 +58,80 @@ func main() {
 	}
 	hands := parseHands(string(bs))
 	fmt.Println(hands)
+	slices.SortFunc(hands,
+		func(a, b hand) int {
+			return a.handtype.value - b.handtype.value
+		})
+	fmt.Println(hands, "\n")
+	hands = sortHands(hands)
+	fmt.Println("Sorted hands: ", hands)
+	winnings := 0
+	for i := 0; i < len(hands); i++ {
+		rank := i + 1
+		fmt.Println("For hand: ", hands[i], ", I have rank: ", rank)
+		winnings += rank * hands[i].bid
+	}
+	fmt.Println("Winnings: ", winnings)
+}
+
+var values = map[string]int {
+	"2": 2,
+	"3": 3,
+	"4": 4,
+	"5": 5,
+	"6": 6,
+	"7": 7,
+	"8": 8,
+	"9": 9,
+	"T": 10,
+	"J": 11,
+	"Q": 12,
+	"K": 13,
+	"A": 14,
 }
 
 func sortHands(hs []hand) []hand {
-	output := []hand{}
+	// output := []hand{}
 	// TODO - implement sorting here
+	byhandtype := [][]hand{}
+	for i := 0; i < len(hs) - 1; i++ {
+		h := hs[i]
+		endindex := i + 1
+		for h.handtype.value == hs[endindex].handtype.value && endindex < len(hs) - 1 {
+			endindex++
+		}
+		subsection := []hand{}
+		if endindex == len(hs) - 1 {
+			subsection = hs[i:]
+		} else {
+			subsection = hs[i:endindex]
+		}
+		i = endindex - 1
+		byhandtype = append(byhandtype, subsection)
+	}
+
+	output := []hand{}
+	for _, cardsbyhandtype := range byhandtype {
+		fmt.Println("Before sort: ", cardsbyhandtype)
+		slices.SortFunc(cardsbyhandtype,
+			func(a, b hand) int {
+				i := 0
+				result := 0
+				for result == 0 && i < len(a.cards) {
+					aval := values[a.cards[i:i+1]]
+					bval := values[b.cards[i:i+1]]
+					result = aval - bval
+					i++
+				}
+				return result
+			},
+		)
+		fmt.Println("After sort: ", cardsbyhandtype)
+		for _, card := range cardsbyhandtype {
+			output = append(output, card)
+		}
+	}
+	
 	return output
 }
 
@@ -86,18 +156,16 @@ func parseHands(puzzleInput string) []hand {
 }
 
 func getHandType(h string) handtype {
-	
-
-	fmt.Println("Running get hand type for: ", h)
+	// fmt.Println("Running get hand type for: ", h)
 	cards := map[string]int{}
 	for i := 0; i < len(h); i++ {
 		c := h[i:i + 1]
 		_, ok := cards[c]
 		if ok {
-			fmt.Println("Has key, will increment")
+			// fmt.Println("Has key, will increment")
 			cards[c] += 1
 		} else {
-			fmt.Println("Does not have..")
+			// fmt.Println("Does not have..")
 			cards[c] = 1
 		}
 	}
