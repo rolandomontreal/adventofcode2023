@@ -51,20 +51,17 @@ var handTypes = []handtype{
 }
 
 func main() {
-	bs, err := os.ReadFile("./testdata.txt")
+	bs, err := os.ReadFile("./actualdata.txt")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	hands := parseHands(string(bs))
-	fmt.Println(hands)
 	slices.SortFunc(hands,
 		func(a, b hand) int {
 			return a.handtype.value - b.handtype.value
 		})
-	fmt.Println(hands, "\n")
 	hands = sortHands(hands)
-	fmt.Println("Sorted hands: ", hands)
 	winnings := 0
 	for i := 0; i < len(hands); i++ {
 		rank := i + 1
@@ -91,28 +88,20 @@ var values = map[string]int {
 }
 
 func sortHands(hs []hand) []hand {
-	// output := []hand{}
-	// TODO - implement sorting here
 	byhandtype := [][]hand{}
-	for i := 0; i < len(hs) - 1; i++ {
+	for i := 0; i < len(hs); i++ {
 		h := hs[i]
 		endindex := i + 1
-		for h.handtype.value == hs[endindex].handtype.value && endindex < len(hs) - 1 {
+		for endindex < len(hs) && h.handtype.value == hs[endindex].handtype.value {
 			endindex++
 		}
-		subsection := []hand{}
-		if endindex == len(hs) - 1 {
-			subsection = hs[i:]
-		} else {
-			subsection = hs[i:endindex]
-		}
+		subsection := hs[i:endindex]
 		i = endindex - 1
 		byhandtype = append(byhandtype, subsection)
 	}
 
 	output := []hand{}
 	for _, cardsbyhandtype := range byhandtype {
-		fmt.Println("Before sort: ", cardsbyhandtype)
 		slices.SortFunc(cardsbyhandtype,
 			func(a, b hand) int {
 				i := 0
@@ -126,25 +115,23 @@ func sortHands(hs []hand) []hand {
 				return result
 			},
 		)
-		fmt.Println("After sort: ", cardsbyhandtype)
 		for _, card := range cardsbyhandtype {
 			output = append(output, card)
 		}
 	}
-	
+
 	return output
 }
 
 func parseHands(puzzleInput string) []hand {
 	hands := []hand{}
 	rows := strings.Split(puzzleInput, "\n")
+	fmt.Println("Rows length: ", len(rows))
 	for _, row := range rows {
 		fields := strings.Fields(row)
 		h, b := fields[0], fields[1]
 		bid, _ := strconv.Atoi(b)
-		fmt.Println(h, b)
 		handtype := getHandType(h)
-		fmt.Println(handtype, "\n")
 		hand := hand{
 			cards: h,
 			bid: bid,
@@ -156,16 +143,13 @@ func parseHands(puzzleInput string) []hand {
 }
 
 func getHandType(h string) handtype {
-	// fmt.Println("Running get hand type for: ", h)
 	cards := map[string]int{}
 	for i := 0; i < len(h); i++ {
 		c := h[i:i + 1]
 		_, ok := cards[c]
 		if ok {
-			// fmt.Println("Has key, will increment")
 			cards[c] += 1
 		} else {
-			// fmt.Println("Does not have..")
 			cards[c] = 1
 		}
 	}
@@ -176,6 +160,8 @@ func getHandType(h string) handtype {
 	} else if len(cards) == 4 { // one pair
 		return handTypes[5]
 	} else if len(cards) == 1 { // fiveof a kind
+
+		fmt.Println("FIVE OF A KIND", cards)
 		return handTypes[0]
 	}
 
