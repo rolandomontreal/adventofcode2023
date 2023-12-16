@@ -81,7 +81,8 @@ var values = map[string]int {
 	"8": 8,
 	"9": 9,
 	"T": 10,
-	"J": 11,
+	// "J": 11, // for pt 1
+	"J": 1, // for pt 2
 	"Q": 12,
 	"K": 13,
 	"A": 14,
@@ -131,7 +132,7 @@ func parseHands(puzzleInput string) []hand {
 		fields := strings.Fields(row)
 		h, b := fields[0], fields[1]
 		bid, _ := strconv.Atoi(b)
-		handtype := getHandType(h)
+		handtype := getHandTypePt2(h)
 		hand := hand{
 			cards: h,
 			bid: bid,
@@ -142,6 +143,74 @@ func parseHands(puzzleInput string) []hand {
 	return hands
 }
 
+func getHandTypePt2(h string) handtype {
+	cards := map[string]int{}
+	for i := 0; i < len(h); i++ {
+		c := h[i:i + 1]
+		_, ok := cards[c]
+		if ok {
+			cards[c] += 1
+		} else {
+			cards[c] = 1
+		}
+	}
+	_, ok := cards["J"]
+	if ok {
+		// fmt.Println("Has jack...", cards)
+		njs := cards["J"]
+		delete(cards, "J")
+		keyWithHighestValue := ""
+		highestValue := -1
+		for k, v := range cards {
+			if v > highestValue {
+				highestValue = v
+				keyWithHighestValue = k
+			}
+		}
+		// fmt.Println(keyWithHighestValue, highestValue)
+		cards[keyWithHighestValue] += njs
+	}
+
+	// fmt.Println(cards)
+	// High card
+	if len(cards) == 5 {
+		return handTypes[6]
+	} else if len(cards) == 4 { // one pair
+		return handTypes[5]
+	} else if len(cards) == 1 { // fiveof a kind
+
+		return handTypes[0]
+	}
+
+	// Four of a kind or full house
+	if len(cards) == 2 {
+		fourofakind := true
+		for _, v := range cards {
+			if v == 3 {
+				fourofakind = false
+			}
+		}
+		if fourofakind {
+			return handTypes[1]
+		}
+		return handTypes[2]
+	} else { // Length is three, three of a kind or pairs
+		threeofakind := true
+		for _, v := range cards {
+			if v == 2 {
+				threeofakind = false
+			}
+		}
+		if threeofakind {
+			return handTypes[3]
+		}
+	}
+
+	return handTypes[4]
+}
+
+
+// For pt 1
 func getHandType(h string) handtype {
 	cards := map[string]int{}
 	for i := 0; i < len(h); i++ {
